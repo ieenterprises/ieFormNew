@@ -1,0 +1,115 @@
+/* Base theme styles */
+.theme-classic {
+  --form-bg: #ffffff;
+  --form-text: #1f2937;
+  --form-border: #e5e7eb;
+  --form-input-bg: #ffffff;
+  --form-input-border: #d1d5db;
+  --form-input-focus: #3b82f6;
+  --form-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.theme-modern {
+  --form-bg: #ffffff;
+  --form-text: #1f2937;
+  --form-border: #e5e7eb;
+  --form-input-bg: #f9fafb;
+  --form-input-border: #e5e7eb;
+  --form-input-focus: #3b82f6;
+  --form-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.theme-minimal {
+  --form-bg: #ffffff;
+  --form-text: #1f2937;
+  --form-border: transparent;
+  --form-input-bg: #f9fafb;
+  --form-input-border: #e5e7eb;
+  --form-input-focus: #3b82f6;
+  --form-shadow: none;
+}
+
+/* Dark mode variations */
+.theme-dark.theme-classic {
+  --form-bg: #1f2937;
+  --form-text: #f3f4f6;
+  --form-border: #374151;
+  --form-input-bg: #111827;
+  --form-input-border: #374151;
+  --form-input-focus: #60a5fa;
+  --form-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.theme-dark.theme-modern {
+  --form-bg: #1f2937;
+  --form-text: #f3f4f6;
+  --form-border: #374151;
+  --form-input-bg: #111827;
+  --form-input-border: #374151;
+  --form-input-focus: #60a5fa;
+  --form-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+}
+
+.theme-dark.theme-minimal {
+  --form-bg: #1f2937;
+  --form-text: #f3f4f6;
+  --form-border: transparent;
+  --form-input-bg: #111827;
+  --form-input-border: #374151;
+  --form-input-focus: #60a5fa;
+  --form-shadow: none;
+}
+
+/* Theme colors */
+.theme-blue {
+  --theme-color: #3b82f6;
+  --theme-color-light: #93c5fd;
+}
+
+.theme-green {
+  --theme-color: #22c55e;
+  --theme-color-light: #86efac;
+}
+
+.theme-purple {
+  --theme-color: #9333ea;
+  --theme-color-light: #c084fc;
+}
+
+.theme-red {
+  --theme-color: #ef4444;
+  --theme-color-light: #fca5a5;
+}
+
+.theme-orange {
+  --theme-color: #f97316;
+  --theme-color-light: #fdba74;
+}
+
+/* Apply theme to form elements */
+.themed-form {
+  background-color: var(--form-bg);
+  color: var(--form-text);
+  border-color: var(--form-border);
+  box-shadow: var(--form-shadow);
+}
+
+.themed-input {
+  background-color: var(--form-input-bg);
+  color: var(--form-text);
+  border-color: var(--form-input-border);
+}
+
+.themed-input:focus {
+  border-color: var(--theme-color);
+  box-shadow: 0 0 0 2px var(--theme-color-light);
+}
+
+/* Progress bar styles */
+.progress-bar-container {
+  background-color: var(--form-input-bg);
+}
+
+.progress-bar-fill {
+  background-color: var(--theme-color);
+}
