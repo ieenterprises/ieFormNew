@@ -41,6 +41,15 @@ function App() {
 
   const handleGenerate = () => {
     const parsedQuestions = parseQuestions(input);
+    
+    // Log the parsed questions for debugging
+    console.log('Parsed questions:', parsedQuestions);
+    
+    if (parsedQuestions.length === 0) {
+      alert('No questions were detected. Please check your input format and try again.');
+      return;
+    }
+    
     const newForm: FormData = {
       id: Math.random().toString(36).substring(2),
       title: 'Untitled Form',
@@ -321,10 +330,14 @@ function App() {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[200px] mb-4"
-                placeholder="Example:
-What is your Gender?    Male    Female
-What is your Age Range?    15 – 19 years    20 – 24 years    25 – 29 years"
+                placeholder="Example of multiple-choice questions:
+What is your Name? John, Mike, Queen
+What is your Gender? Male, Female, Other
+What is your Age Range? 15-19 years, 20-24 years, 25-29 years"
               />
+              <div className="text-sm text-gray-600 mb-4">
+                <p><strong>Tip:</strong> For multiple-choice questions, type your question followed by a question mark, then list the options separated by commas.</p>
+              </div>
               <button
                 onClick={handleGenerate}
                 className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition-colors flex items-center justify-center"

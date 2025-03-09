@@ -1,38 +1,84 @@
 import { FormQuestion } from '../types/form';
 
 export function parseQuestions(input: string): FormQuestion[] {
-  const questions: FormQuestion[] = [];
-  const lines = input.split('\n').filter(line => line.trim());
+  if (!input.trim()) return [];
 
-  let currentQuestion: {
-    text: string;
-    options: string[];
-  } | null = null;
+  const lines = input.split('\n').filter(line => line.trim());
+  const questions: FormQuestion[] = [];
 
   for (const line of lines) {
-    // Check if this is a new question (ends with '?')
-    if (line.includes('?')) {
-      // If we have a previous question, save it
-      if (currentQuestion) {
-        questions.push(createQuestionObject(currentQuestion.text, currentQuestion.options));
-      }
-      // Start a new question
-      currentQuestion = {
-        text: line.trim(),
-        options: []
-      };
-    } 
-    // Check if this line contains options (starts with A), B), etc.)
-    else if (currentQuestion && /^[A-D]\)/.test(line.trim())) {
-      // Extract the option text (remove the A), B), etc. prefix)
-      const optionText = line.trim().replace(/^[A-D]\)\s*/, '').trim();
-      currentQuestion.options.push(optionText);
-    }
-  }
+    // Check if the line contains a question and options
+    const questionMatch = line.match(/(.*?)\s*\?\s*(.*)/);
 
-  // Don't forget to add the last question
-  if (currentQuestion) {
-    questions.push(createQuestionObject(currentQuestion.text, currentQuestion.options));
+    if (questionMatch) {
+      const [, questionText, optionsText] = questionMatch;
+
+      if (optionsText && optionsText.trim()) {
+        // This is likely a multiple choice question
+        // Parse options - they could be separated by commas or tabs
+        const options = optionsText.split(/[,\t]/)
+          .map(option => option.trim())
+          .filter(option => option.length > 0);
+
+        if (options.length > 0) {
+          // Create a multiple choice question
+          questions.push({
+            id: Math.random().toString(36).substring(2),
+            type: 'multiple_choice',
+            question: `${questionText.trim()}?`,
+            options: options,
+            required: true
+          });
+          continue;
+        }
+      }
+
+      // Default to short answer if no options or couldn't parse options
+      questions.push({
+        id: Math.random().toString(36).substring(2),
+        type: 'short_answer',
+        question: `${questionText.trim()}?`,
+        required: true
+      });
+    } else {
+      // Check if there are options listed separately with tab or multiple spaces
+      const optionsMatch = line.match(/(.*?)(?:\t|\s{2,})(.*)/);
+
+      if (optionsMatch) {
+        const [, questionText, optionsText] = optionsMatch;
+
+        // Parse options - could be separated by tabs or multiple spaces
+        const options = optionsText.split(/[\t\s{2,}]/)
+          .map(option => option.trim())
+          .filter(option => option.length > 0);
+
+        if (options.length > 0) {
+          questions.push({
+            id: Math.random().toString(36).substring(2),
+            type: 'multiple_choice',
+            question: questionText.trim(),
+            options: options,
+            required: true
+          });
+        } else {
+          // Default to short answer
+          questions.push({
+            id: Math.random().toString(36).substring(2),
+            type: 'short_answer',
+            question: questionText.trim(),
+            required: true
+          });
+        }
+      } else {
+        // Just a regular question without options
+        questions.push({
+          id: Math.random().toString(36).substring(2),
+          type: 'short_answer',
+          question: line.trim(),
+          required: true
+        });
+      }
+    }
   }
 
   return questions;
@@ -60,10 +106,10 @@ function createQuestionObject(questionText: string, options: string[]): FormQues
 function parseQuestion(line: string): FormQuestion | null {
   // Remove numbers at the start of the line (e.g., "1. ", "2. ")
   const cleanLine = line.replace(/^\d+[\.\)]\s*/, '').trim();
-  
+
   // First try to split by question mark to separate question from options
   let parts = cleanLine.split('?');
-  
+
   if (parts.length < 2) {
     // If no question mark, try to identify the question and options using other delimiters
     parts = cleanLine.split(/\s*:\s*/);
@@ -77,7 +123,7 @@ function parseQuestion(line: string): FormQuestion | null {
 
   // Parse options
   let options: string[] = [];
-  
+
   if (optionsText) {
     // Try to match options in the format "A) option, B) option" etc.
     const optionMatches = optionsText.match(/[A-D]\)\s*[^,\n]+/g);
@@ -106,7 +152,7 @@ function parseQuestion(line: string): FormQuestion | null {
 
   // Detect question type based on content and options
   if (options.length === 0) {
-    if (questionText.toLowerCase().includes('describe') || 
+    if (questionText.toLowerCase().includes('describe') ||
         questionText.toLowerCase().includes('explain') ||
         questionText.toLowerCase().includes('elaborate')) {
       return {
@@ -123,8 +169,8 @@ function parseQuestion(line: string): FormQuestion | null {
   }
 
   // Check for rating or satisfaction questions
-  if (options.some(opt => 
-    opt.toLowerCase().includes('satisfied') || 
+  if (options.some(opt =>
+    opt.toLowerCase().includes('satisfied') ||
     opt.toLowerCase().includes('dissatisfied') ||
     opt.toLowerCase().includes('rating'))) {
     return {

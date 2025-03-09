@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { FormQuestion } from '../types/form';
-import { Trash2, GripVertical, AlertCircle } from 'lucide-react';
+import { Trash2, GripVertical, AlertCircle, Plus } from 'lucide-react';
 
 interface QuestionEditorProps {
   question: FormQuestion;
