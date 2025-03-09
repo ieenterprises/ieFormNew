@@ -371,7 +371,9 @@ What is your Age Range? 15-19 years, 20-24 years, 25-29 years"
                 theme-${currentForm.settings.theme.primaryColor || 'blue'}
               `}
             >
-              <h1 className="text-2xl font-bold mb-6">{currentForm.title}</h1>
+              <h1 className="text-2xl font-bold mb-6" style={{
+                transition: 'all 0.3s ease'
+              }}>{currentForm.title}</h1>
 
               {/* Display custom logo if present */}
               {currentForm.settings.theme.logo && (

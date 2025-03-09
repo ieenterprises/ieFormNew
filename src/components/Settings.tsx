@@ -100,6 +100,8 @@ export function Settings({ form, onUpdate }: SettingsProps) {
                         updateSettings({
                           theme: { ...theme, style: style.value }
                         });
+                        // Force a refresh of the theme styles
+                        document.documentElement.style.setProperty('--theme-refresh', Math.random().toString());
                       }}
                       className={`px-4 py-2 rounded-md border ${
                         theme.style === style.value
