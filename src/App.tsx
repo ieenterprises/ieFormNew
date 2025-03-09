@@ -166,9 +166,9 @@ function App() {
     const newResponse: FormResponse = {
       id: Math.random().toString(36).substring(2),
       formId: currentForm.id,
-      email: emailToStore, // Store email separately
+      email: responses.email as string || '',
       answers: responses,
-      submittedAt: new Date().toISOString()
+      submittedAt: new Date().toISOString(),
     };
 
     // Send copy of response to email if option is enabled

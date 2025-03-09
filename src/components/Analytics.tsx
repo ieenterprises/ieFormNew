@@ -55,28 +55,38 @@ export function Analytics({ form }: AnalyticsProps) {
 
     // Create CSV rows
     const rows = form.responses.map(response => {
-      const row = [
-        new Date(response.submittedAt).toLocaleString(),
-        response.answers.email || 'N/A'
-      ];
-
+      // Format timestamp properly to avoid splitting issues
+      const timestampStr = `"${new Date(response.submittedAt).toLocaleString()}"`;
+      
+      // Use email from the response object directly (not from answers)
+      const emailStr = response.email ? `"${response.email}"` : '"N/A"';
+      
+      // Start the row with timestamp and email
+      const row = [timestampStr, emailStr];
+      
+      // Add each question's answer in the correct order
       form.questions.forEach(question => {
         const answer = response.answers[question.id];
+        let formattedAnswer = '';
+        
         if (Array.isArray(answer)) {
-          row.push(answer.join(', '));
+          formattedAnswer = `"${answer.join(', ')}"`;
         } else if (answer !== undefined) {
-          row.push(String(answer));
+          formattedAnswer = `"${String(answer)}"`;
         } else {
-          row.push('');
+          formattedAnswer = '""';
         }
+        
+        row.push(formattedAnswer);
       });
 
       return row;
     });
 
-    // Combine headers and rows
+    // Combine headers and rows - ensure headers are also quoted
+    const quotedHeaders = headers.map(header => `"${header}"`);
     const csvContent = [
-      headers.join(','),
+      quotedHeaders.join(','),
       ...rows.map(row => row.join(','))
     ].join('\n');
 
