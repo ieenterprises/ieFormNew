@@ -1,6 +1,7 @@
+
 import React, { useState } from 'react';
-import { FormTheme } from '../types/form';
 import { Upload, Trash2 } from 'lucide-react';
+import { FormTheme } from '../types/form';
 
 interface LogoUploadProps {
   theme: FormTheme;
@@ -77,11 +78,15 @@ export function LogoUpload({ theme, onUpdate }: LogoUploadProps) {
 
       {theme.logo ? (
         <div className="space-y-4">
-          <div className="flex justify-center">
+          <div className={`text-${theme.logo.alignment || 'center'}`}>
             <img 
               src={theme.logo.url} 
               alt="Form logo" 
-              className="max-h-20 object-contain"
+              className="max-h-20 inline-block"
+              style={{
+                maxWidth: '100%',
+                height: 'auto'
+              }}
             />
           </div>
 
@@ -115,14 +120,16 @@ export function LogoUpload({ theme, onUpdate }: LogoUploadProps) {
             </button>
           </div>
 
-          <button
-            type="button"
-            onClick={handleRemoveLogo}
-            className="px-3 py-1 text-red-500 border border-red-300 rounded-md flex items-center gap-2 hover:bg-red-50"
-          >
-            <Trash2 className="w-4 h-4" />
-            Remove Logo
-          </button>
+          <div className="flex justify-center mt-2">
+            <button
+              type="button"
+              onClick={handleRemoveLogo}
+              className="px-3 py-1 text-red-500 border border-red-300 rounded-md flex items-center gap-2 hover:bg-red-50"
+            >
+              <Trash2 className="w-4 h-4" />
+              Remove Logo
+            </button>
+          </div>
         </div>
       ) : (
         <div 
