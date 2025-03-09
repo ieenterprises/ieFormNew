@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { FormData, FormResponse } from '../types/form';
 import { BarChart, DownloadIcon, BarChart2, PieChart } from 'lucide-react';
@@ -10,48 +9,57 @@ interface AnalyticsProps {
 export function Analytics({ form }: AnalyticsProps) {
   const [viewMode, setViewMode] = useState<'summary' | 'individual'>('summary');
   const [selectedResponse, setSelectedResponse] = useState<string | null>(null);
-  
+
   // Get response statistics
   const totalResponses = form.responses.length;
-  
+
   // Calculate completion rate
   const completionRate = totalResponses > 0 
     ? Math.round((totalResponses / (totalResponses + 0)) * 100) 
     : 0;
-  
+
   // Calculate average completion time (mock data for now)
   const avgCompletionTime = '2 minutes';
-  
+
   // For quiz forms, calculate average score
   let avgScore = 0;
   let maxPossibleScore = 0;
-  
+
   if (form.settings.isQuiz) {
     const totalScores = form.responses.reduce((sum, response) => sum + (response.score || 0), 0);
     avgScore = totalResponses > 0 ? Math.round(totalScores / totalResponses) : 0;
-    
+
     // Calculate max possible score
     maxPossibleScore = form.questions.reduce((sum, q) => sum + (q.points || 0), 0);
   }
-  
+
   // Function to export responses as CSV
   const exportCSV = () => {
     if (form.responses.length === 0) {
       alert('No responses to export');
       return;
     }
-    
+
     // Create CSV headers
-    const headers = ['Timestamp', 'Email'];
-    form.questions.forEach(q => headers.push(q.question));
-    
+    const headers = [
+      'Timestamp',
+      'Email'
+    ];
+
+    // Add question headers
+    form.questions.forEach(question => {
+      headers.push(question.question);
+    });
+
+    console.log("Export headers:", headers);
+
     // Create CSV rows
     const rows = form.responses.map(response => {
       const row = [
         new Date(response.submittedAt).toLocaleString(),
         response.answers.email || 'N/A'
       ];
-      
+
       form.questions.forEach(question => {
         const answer = response.answers[question.id];
         if (Array.isArray(answer)) {
@@ -62,16 +70,16 @@ export function Analytics({ form }: AnalyticsProps) {
           row.push('');
         }
       });
-      
+
       return row;
     });
-    
+
     // Combine headers and rows
     const csvContent = [
       headers.join(','),
       ...rows.map(row => row.join(','))
     ].join('\n');
-    
+
     // Create download link
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
@@ -83,7 +91,7 @@ export function Analytics({ form }: AnalyticsProps) {
     link.click();
     document.body.removeChild(link);
   };
-  
+
   // Function to render summary statistics
   const renderSummary = () => (
     <div className="space-y-6">
@@ -92,17 +100,17 @@ export function Analytics({ form }: AnalyticsProps) {
           <h3 className="text-lg font-medium text-gray-700">Total Responses</h3>
           <p className="text-3xl font-bold text-blue-500">{totalResponses}</p>
         </div>
-        
+
         <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
           <h3 className="text-lg font-medium text-gray-700">Completion Rate</h3>
           <p className="text-3xl font-bold text-green-500">{completionRate}%</p>
         </div>
-        
+
         <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
           <h3 className="text-lg font-medium text-gray-700">Avg. Completion Time</h3>
           <p className="text-3xl font-bold text-purple-500">{avgCompletionTime}</p>
         </div>
-        
+
         {form.settings.isQuiz && (
           <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 md:col-span-3">
             <h3 className="text-lg font-medium text-gray-700">Average Quiz Score</h3>
@@ -112,11 +120,11 @@ export function Analytics({ form }: AnalyticsProps) {
           </div>
         )}
       </div>
-      
+
       {form.questions.map((question, index) => (
         <div key={index} className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
           <h3 className="text-lg font-medium mb-4">{question.question}</h3>
-          
+
           {question.type === 'multiple_choice' || question.type === 'checkboxes' || question.type === 'dropdown' ? (
             <div>
               {/* Simple bar chart representation */}
@@ -129,9 +137,9 @@ export function Analytics({ form }: AnalyticsProps) {
                   }
                   return answer === option;
                 }).length;
-                
+
                 const percentage = totalResponses > 0 ? Math.round((count / totalResponses) * 100) : 0;
-                
+
                 return (
                   <div key={i} className="mb-3">
                     <div className="flex justify-between mb-1">
@@ -155,7 +163,7 @@ export function Analytics({ form }: AnalyticsProps) {
       ))}
     </div>
   );
-  
+
   // Function to render individual responses
   const renderIndividualResponses = () => {
     if (form.responses.length === 0) {
@@ -165,13 +173,13 @@ export function Analytics({ form }: AnalyticsProps) {
         </div>
       );
     }
-    
+
     const response = selectedResponse 
       ? form.responses.find(r => r.id === selectedResponse) 
       : form.responses[0];
-      
+
     if (!response) return null;
-    
+
     return (
       <div className="space-y-4">
         <div className="flex space-x-2 overflow-x-auto pb-4">
@@ -189,7 +197,7 @@ export function Analytics({ form }: AnalyticsProps) {
             </button>
           ))}
         </div>
-        
+
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
           <div className="mb-4 flex justify-between items-center">
             <div>
@@ -203,7 +211,7 @@ export function Analytics({ form }: AnalyticsProps) {
                 </p>
               )}
             </div>
-            
+
             {form.settings.isQuiz && (
               <div className="text-right">
                 <p className="text-lg font-bold">
@@ -215,11 +223,11 @@ export function Analytics({ form }: AnalyticsProps) {
               </div>
             )}
           </div>
-          
+
           <div className="space-y-4">
             {form.questions.map((question, index) => {
               const answer = response.answers[question.id];
-              
+
               let displayAnswer = '';
               if (Array.isArray(answer)) {
                 displayAnswer = answer.join(', ');
@@ -228,7 +236,7 @@ export function Analytics({ form }: AnalyticsProps) {
               } else {
                 displayAnswer = 'No answer';
               }
-              
+
               // Determine if the answer is correct (for quiz)
               let isCorrect = null;
               if (form.settings.isQuiz && question.correctAnswer !== undefined) {
@@ -244,7 +252,7 @@ export function Analytics({ form }: AnalyticsProps) {
                   isCorrect = answer === question.correctAnswer;
                 }
               }
-              
+
               return (
                 <div key={index} className="border-t pt-4">
                   <h4 className="font-medium">
@@ -258,7 +266,7 @@ export function Analytics({ form }: AnalyticsProps) {
                     )}
                   </h4>
                   <p className="mt-1">{displayAnswer}</p>
-                  
+
                   {form.settings.isQuiz && question.feedback && !isCorrect && (
                     <p className="mt-1 text-sm text-gray-600 bg-yellow-50 p-2 rounded">
                       <strong>Feedback:</strong> {question.feedback}
@@ -272,7 +280,7 @@ export function Analytics({ form }: AnalyticsProps) {
       </div>
     );
   };
-  
+
   return (
     <div className="space-y-6">
       <div className="bg-white rounded-lg shadow-sm border border-gray-200">
@@ -281,7 +289,7 @@ export function Analytics({ form }: AnalyticsProps) {
             <BarChart className="w-5 h-5 text-blue-500" />
             Form Analytics
           </h2>
-          
+
           <div className="flex gap-2">
             <button
               onClick={exportCSV}
@@ -297,7 +305,7 @@ export function Analytics({ form }: AnalyticsProps) {
             </button>
           </div>
         </div>
-        
+
         <div className="p-6">
           <div className="flex gap-4 mb-6">
             <button
@@ -323,7 +331,7 @@ export function Analytics({ form }: AnalyticsProps) {
               Individual Responses
             </button>
           </div>
-          
+
           {viewMode === 'summary' ? renderSummary() : renderIndividualResponses()}
         </div>
       </div>

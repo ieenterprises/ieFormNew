@@ -1,4 +1,3 @@
-
 export type QuestionType = 
   | 'short_answer'
   | 'paragraph'
@@ -44,6 +43,7 @@ export interface FormQuestion {
 export interface FormResponse {
   id: string;
   formId: string;
+  email?: string;
   answers: Record<string, string | string[] | number | Date | boolean>;
   submittedAt: string;
   score?: number;

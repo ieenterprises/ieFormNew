@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { FormTheme } from '../types/form';
 import { Upload, Trash2 } from 'lucide-react';
@@ -10,56 +9,60 @@ interface LogoUploadProps {
 
 export function LogoUpload({ theme, onUpdate }: LogoUploadProps) {
   const [uploading, setUploading] = useState(false);
-  
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    
-    // Check file size (max 2MB)
+
+    // Check file size (2MB max)
     if (file.size > 2 * 1024 * 1024) {
-      alert('File is too large. Please upload an image under 2MB.');
+      alert('File size should not exceed 2MB');
       return;
     }
-    
-    // Check file type
-    if (!['image/jpeg', 'image/png', 'image/gif'].includes(file.type)) {
-      alert('Unsupported file type. Please upload a PNG or JPG image.');
-      return;
-    }
-    
+
     setUploading(true);
-    
-    // Convert file to base64 for storage
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const logoUrl = event.target?.result as string;
-      
-      // Create an image element to get dimensions
-      const img = new Image();
-      img.onload = () => {
-        onUpdate({
-          logo: {
-            url: logoUrl,
-            width: img.width,
-            height: img.height,
-            alignment: 'center'
-          }
-        });
+
+    try {
+      // Convert to base64
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onloadend = () => {
+        const base64String = reader.result as string;
+        // Ensure the base64 data is valid
+        if (base64String && base64String.startsWith('data:image/')) {
+          onUpdate({
+            logo: {
+              url: base64String,
+              alignment: theme.logo?.alignment || 'center'
+            }
+          });
+          console.log('Logo updated:', base64String.substring(0, 50) + '...');
+        } else {
+          console.error('Invalid image data format');
+          alert('Failed to process image. Please try another file.');
+        }
         setUploading(false);
       };
-      img.src = logoUrl;
-    };
-    
-    reader.readAsDataURL(file);
+
+      reader.onerror = () => {
+        console.error('Error reading file');
+        alert('Error reading file. Please try again.');
+        setUploading(false);
+      };
+    } catch (error) {
+      console.error('Error uploading logo:', error);
+      setUploading(false);
+      alert('Failed to upload logo. Please try again.');
+    }
   };
-  
+
   const handleRemoveLogo = () => {
     onUpdate({ logo: undefined });
   };
-  
+
   const handleAlignmentChange = (alignment: 'left' | 'center' | 'right') => {
     if (!theme.logo) return;
-    
+
     onUpdate({
       logo: {
         ...theme.logo,
@@ -67,11 +70,11 @@ export function LogoUpload({ theme, onUpdate }: LogoUploadProps) {
       }
     });
   };
-  
+
   return (
     <div className="space-y-4">
       <label className="block font-medium mb-2">Business Logo</label>
-      
+
       {theme.logo ? (
         <div className="space-y-4">
           <div className="flex justify-center">
@@ -81,7 +84,7 @@ export function LogoUpload({ theme, onUpdate }: LogoUploadProps) {
               className="max-h-20 object-contain"
             />
           </div>
-          
+
           <div className="flex justify-center space-x-4">
             <button
               type="button"
@@ -111,7 +114,7 @@ export function LogoUpload({ theme, onUpdate }: LogoUploadProps) {
               Right
             </button>
           </div>
-          
+
           <button
             type="button"
             onClick={handleRemoveLogo}
@@ -129,7 +132,7 @@ export function LogoUpload({ theme, onUpdate }: LogoUploadProps) {
           <Upload className="w-8 h-8 mx-auto text-gray-400" />
           <p className="mt-2 text-sm text-gray-500">Click to upload logo</p>
           <p className="text-xs text-gray-400 mt-1">PNG, JPG up to 2MB</p>
-          
+
           <input
             id="logo-upload"
             type="file"
@@ -138,7 +141,7 @@ export function LogoUpload({ theme, onUpdate }: LogoUploadProps) {
             className="hidden"
             disabled={uploading}
           />
-          
+
           {uploading && (
             <div className="mt-2">
               <div className="w-full bg-gray-200 rounded-full h-2.5">

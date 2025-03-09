@@ -41,15 +41,15 @@ function App() {
 
   const handleGenerate = () => {
     const parsedQuestions = parseQuestions(input);
-    
+
     // Log the parsed questions for debugging
     console.log('Parsed questions:', parsedQuestions);
-    
+
     if (parsedQuestions.length === 0) {
       alert('No questions were detected. Please check your input format and try again.');
       return;
     }
-    
+
     const newForm: FormData = {
       id: Math.random().toString(36).substring(2),
       title: 'Untitled Form',
@@ -142,36 +142,57 @@ function App() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!currentForm) return;
-    
-    const email = responses['email'] as string;
-    
-    // Check for previous submission if limit is enabled
-    if (currentForm.settings.limitOneResponse && email) {
-      if (checkPreviousSubmission(email)) {
-        alert('You have already submitted a response to this form.');
+
+    let emailToStore = '';
+    // Check email if required
+    if (currentForm.settings.emailCollection !== 'do_not_collect') {
+      const email = responses['email'] as string;
+      if (!email || !email.includes('@')) {
+        alert('Please enter a valid email address');
         return;
       }
+      emailToStore = email;
+      // If email collection is verified, we would verify here
+      if (currentForm.settings.emailCollection === 'verified') {
+        if (checkPreviousSubmission(email)) {
+          alert('You have already submitted a response with this email');
+          return;
+        }
+      }
     }
-    
+
+
+    // Create new response object
     const newResponse: FormResponse = {
       id: Math.random().toString(36).substring(2),
       formId: currentForm.id,
+      email: emailToStore, // Store email separately
       answers: responses,
       submittedAt: new Date().toISOString()
     };
-    
+
+    // Send copy of response to email if option is enabled
+    if (currentForm.settings.sendResponseCopy && 
+        responses['send_copy'] === true && 
+        emailToStore) {
+      console.log(`Would send email to ${emailToStore} with response summary`);
+      // In a real app, you would implement actual email sending here
+      alert(`A copy of your response will be sent to ${emailToStore}`);
+    }
+
+    // Update form with new response
     setCurrentForm(prev => ({
       ...prev!,
       responses: [...prev!.responses, newResponse]
     }));
-    
+
     // Store the submitted email for checking future submissions
-    setSubmittedEmail(email || '');
+    setSubmittedEmail(emailToStore);
     setHasSubmitted(true);
-    
+
     // Clear responses
     setResponses({});
-    
+
     // Show confirmation page
     setView('confirmation');
   };
@@ -189,7 +210,7 @@ function App() {
         return;
       }
     }
-    
+
     setResponses({});
     setView('preview');
   };
@@ -288,7 +309,7 @@ function App() {
                   Create New Form
                 </button>
               </div>
-              
+
               {forms.map(form => (
                 <div
                   key={form.id}
@@ -358,7 +379,7 @@ What is your Age Range? 15-19 years, 20-24 years, 25-29 years"
               `}
             >
               <h1 className="text-2xl font-bold mb-6">{currentForm.title}</h1>
-              
+
               {/* Display custom logo if present */}
               {currentForm.settings.theme.logo && (
                 <div className={`mb-6 text-${currentForm.settings.theme.logo.alignment}`}>
@@ -373,7 +394,7 @@ What is your Age Range? 15-19 years, 20-24 years, 25-29 years"
                   />
                 </div>
               )}
-              
+
               {/* Display custom header if present */}
               {currentForm.settings.theme.customHeader && (
                 <div 
@@ -381,7 +402,7 @@ What is your Age Range? 15-19 years, 20-24 years, 25-29 years"
                   dangerouslySetInnerHTML={{ __html: currentForm.settings.theme.customHeader }}
                 />
               )}
-              
+
               {/* Show progress bar if enabled */}
               {currentForm.settings.showProgressBar && (
                 <div className="mb-6">
@@ -413,7 +434,7 @@ What is your Age Range? 15-19 years, 20-24 years, 25-29 years"
                     <label className="block text-sm font-medium">
                       {question.question}
                       {question.required && <span className="text-red-500 ml-1">*</span>}
-                      
+
                       {/* Show points if this is a quiz */}
                       {currentForm.settings.isQuiz && question.points && (
                         <span className="ml-2 text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full">
@@ -433,7 +454,7 @@ What is your Age Range? 15-19 years, 20-24 years, 25-29 years"
                     />
                   </div>
                 ))}
-                
+
                 {/* Add email collection if enabled */}
                 {currentForm.settings.emailCollection !== 'do_not_collect' && (
                   <div className="space-y-2">
@@ -452,7 +473,7 @@ What is your Age Range? 15-19 years, 20-24 years, 25-29 years"
                         email: e.target.value
                       }))}
                     />
-                    
+
                     {/* Show copy of response option */}
                     {currentForm.settings.sendResponseCopy && (
                       <div className="flex items-center mt-2">
@@ -473,7 +494,7 @@ What is your Age Range? 15-19 years, 20-24 years, 25-29 years"
                     )}
                   </div>
                 )}
-                
+
                 <div className="flex space-x-4">
                   <button
                     type="submit"
@@ -503,7 +524,7 @@ What is your Age Range? 15-19 years, 20-24 years, 25-29 years"
                 className="w-full px-4 py-2 text-2xl font-bold border-0 border-b-2 border-gray-200 focus:border-blue-500 focus:ring-0 bg-transparent"
                 placeholder="Form Title"
               />
-              
+
               <div className="space-y-4">
                 {currentForm.questions.map((question, index) => (
                   <QuestionEditor
@@ -562,7 +583,7 @@ What is your Age Range? 15-19 years, 20-24 years, 25-29 years"
                 <CheckCircle className="w-16 h-16 text-green-500 mb-4" />
                 <h2 className="text-2xl font-bold mb-4">Thank You!</h2>
                 <p className="text-lg mb-6">{currentForm.settings.confirmationMessage}</p>
-                
+
                 {currentForm.settings.showSubmitAnother && !currentForm.settings.limitOneResponse && (
                   <button
                     onClick={handleStartNewResponse}
@@ -571,7 +592,7 @@ What is your Age Range? 15-19 years, 20-24 years, 25-29 years"
                     Start New Response
                   </button>
                 )}
-                
+
                 {currentForm.settings.limitOneResponse && (
                   <div className="mt-4 p-4 bg-gray-100 rounded-md">
                     <div className="flex items-center gap-2 text-gray-600">
