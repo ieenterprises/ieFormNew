@@ -204,22 +204,7 @@ export function Settings({ form, onUpdate }: SettingsProps) {
                 </select>
               </div>
 
-              <div className="flex items-center justify-between">
-                <div>
-                  <label className="font-medium">Send responders a copy of their response</label>
-                  <p className="text-sm text-gray-500">Requires email collection</p>
-                </div>
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={form.settings.sendResponseCopy}
-                    onChange={(e) => updateSettings({ sendResponseCopy: e.target.checked })}
-                    disabled={form.settings.emailCollection === 'do_not_collect'}
-                    className="sr-only peer"
-                  />
-                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500"></div>
-                </label>
-              </div>
+              {/* Send responders a copy option removed */}
 
               <div className="flex items-center justify-between">
                 <div>

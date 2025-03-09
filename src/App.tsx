@@ -171,14 +171,7 @@ function App() {
       submittedAt: new Date().toISOString(),
     };
 
-    // Send copy of response to email if option is enabled
-    if (currentForm.settings.sendResponseCopy && 
-        responses['send_copy'] === true && 
-        emailToStore) {
-      console.log(`Would send email to ${emailToStore} with response summary`);
-      // In a real app, you would implement actual email sending here
-      alert(`A copy of your response will be sent to ${emailToStore}`);
-    }
+    // Email sending functionality removed
 
     // Update form with new response
     setCurrentForm(prev => ({
@@ -474,24 +467,7 @@ What is your Age Range? 15-19 years, 20-24 years, 25-29 years"
                       }))}
                     />
 
-                    {/* Show copy of response option */}
-                    {currentForm.settings.sendResponseCopy && (
-                      <div className="flex items-center mt-2">
-                        <input
-                          type="checkbox"
-                          id="send-copy"
-                          checked={responses['send_copy'] as boolean || false}
-                          onChange={(e) => setResponses(prev => ({
-                            ...prev,
-                            send_copy: e.target.checked
-                          }))}
-                          className="mr-2"
-                        />
-                        <label htmlFor="send-copy" className="text-sm">
-                          Send me a copy of my responses
-                        </label>
-                      </div>
-                    )}
+                    {/* Send copy option removed */}
                   </div>
                 )}
 
