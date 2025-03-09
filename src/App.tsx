@@ -366,9 +366,9 @@ What is your Age Range? 15-19 years, 20-24 years, 25-29 years"
             <div 
               className={`
                 themed-form rounded-lg shadow-md p-6
-                ${currentForm.settings.theme.style}
+                ${currentForm.settings.theme.style || 'classic'}
                 ${currentForm.settings.theme.darkMode ? 'theme-dark' : ''}
-                theme-${currentForm.settings.theme.primaryColor}
+                theme-${currentForm.settings.theme.primaryColor || 'blue'}
               `}
             >
               <h1 className="text-2xl font-bold mb-6">{currentForm.title}</h1>

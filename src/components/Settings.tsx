@@ -95,12 +95,15 @@ export function Settings({ form, onUpdate }: SettingsProps) {
                   {themeStyles.map(style => (
                     <button
                       key={style.value}
-                      onClick={() => updateSettings({
-                        theme: { ...theme, style: style.value }
-                      })}
+                      onClick={() => {
+                        console.log(`Changing theme style to: ${style.value}`);
+                        updateSettings({
+                          theme: { ...theme, style: style.value }
+                        });
+                      }}
                       className={`px-4 py-2 rounded-md border ${
                         theme.style === style.value
-                          ? 'bg-gray-100 border-gray-300'
+                          ? 'bg-blue-100 border-blue-300 font-medium'
                           : 'border-gray-200 hover:bg-gray-50'
                       }`}
                     >
