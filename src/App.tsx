@@ -23,8 +23,8 @@ const defaultTheme: FormTheme = {
 function App() {
   const [input, setInput] = useState('');
   const [forms, setForms] = useState<FormData[]>(() => {
-    const savedForms = localStorage.getItem('formBuilderForms');
-    return savedForms ? JSON.parse(savedForms) : [];
+    const saved = localStorage.getItem('forms');
+    return saved ? JSON.parse(saved) : [];
   });
   const [currentForm, setCurrentForm] = useState<FormData | null>(null);
   const [responses, setResponses] = useState<Record<string, string | string[] | number | Date>>({});
@@ -34,21 +34,6 @@ function App() {
   const [draggedQuestionIndex, setDraggedQuestionIndex] = useState<number | null>(null);
   const [submittedEmail, setSubmittedEmail] = useState<string>('');
   const [hasSubmitted, setHasSubmitted] = useState(false);
-
-  // Email service configuration
-  const [emailConfig, setEmailConfig] = useState(() => {
-    const savedConfig = localStorage.getItem('formBuilderEmailConfig');
-    return savedConfig ? JSON.parse(savedConfig) : {
-      serviceId: '',
-      templateId: '',
-      userId: ''
-    };
-  });
-
-  // Save email config to localStorage whenever it changes
-  useEffect(() => {
-    localStorage.setItem('formBuilderEmailConfig', JSON.stringify(emailConfig));
-  }, [emailConfig]);
 
   useEffect(() => {
     localStorage.setItem('forms', JSON.stringify(forms));
@@ -189,13 +174,9 @@ function App() {
     // Send copy of response to email if option is enabled
     if (currentForm.settings.sendResponseCopy && 
         responses['send_copy'] === true && 
-        emailToStore && emailConfig.serviceId && emailConfig.templateId && emailConfig.userId) {
-      // Implement actual email sending here using emailConfig
-      // Example using EmailJS (you'll need to install the library):
-      // emailjs.send(emailConfig.serviceId, emailConfig.templateId, {email: emailToStore, response: newResponse}, emailConfig.userId)
-      //   .then(res => console.log('Email sent successfully:', res))
-      //   .catch(err => console.error('Failed to send email:', err));
-
+        emailToStore) {
+      console.log(`Would send email to ${emailToStore} with response summary`);
+      // In a real app, you would implement actual email sending here
       alert(`A copy of your response will be sent to ${emailToStore}`);
     }
 
@@ -232,11 +213,6 @@ function App() {
 
     setResponses({});
     setView('preview');
-  };
-
-  const updateSettings = (updatedForm: FormData) => {
-    setCurrentForm(updatedForm);
-    handleSaveForm();
   };
 
   return (
@@ -449,6 +425,7 @@ What is your Age Range? 15-19 years, 20-24 years, 25-29 years"
                 className="space-y-6"
                 autoSave={currentForm.settings.disableAutosave ? 'off' : 'on'}
               >
+                {/* Shuffle questions if enabled */}
                 {(currentForm.settings.shuffleQuestions 
                   ? [...currentForm.questions].sort(() => Math.random() - 0.5) 
                   : currentForm.questions
@@ -458,6 +435,7 @@ What is your Age Range? 15-19 years, 20-24 years, 25-29 years"
                       {question.question}
                       {question.required && <span className="text-red-500 ml-1">*</span>}
 
+                      {/* Show points if this is a quiz */}
                       {currentForm.settings.isQuiz && question.points && (
                         <span className="ml-2 text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full">
                           {question.points} {question.points === 1 ? 'point' : 'points'}
@@ -477,6 +455,7 @@ What is your Age Range? 15-19 years, 20-24 years, 25-29 years"
                   </div>
                 ))}
 
+                {/* Add email collection if enabled */}
                 {currentForm.settings.emailCollection !== 'do_not_collect' && (
                   <div className="space-y-2">
                     <label className="block text-sm font-medium">
@@ -495,6 +474,7 @@ What is your Age Range? 15-19 years, 20-24 years, 25-29 years"
                       }))}
                     />
 
+                    {/* Show copy of response option */}
                     {currentForm.settings.sendResponseCopy && (
                       <div className="flex items-center mt-2">
                         <input
@@ -525,6 +505,7 @@ What is your Age Range? 15-19 years, 20-24 years, 25-29 years"
                 </div>
               </form>
 
+              {/* Show custom footer if present */}
               {currentForm.settings.theme.customFooter && (
                 <div 
                   className="mt-6"
@@ -588,12 +569,7 @@ What is your Age Range? 15-19 years, 20-24 years, 25-29 years"
           )}
 
           {currentForm && view === 'settings' && (
-            <Settings 
-              form={currentForm} 
-              updateSettings={updateSettings} 
-              emailConfig={emailConfig} 
-              updateEmailConfig={setEmailConfig} 
-            />
+            <Settings form={currentForm} onUpdate={setCurrentForm} />
           )}
 
           {currentForm && view === 'confirmation' && (

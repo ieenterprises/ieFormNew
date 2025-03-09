@@ -2,17 +2,10 @@ import React from 'react';
 import { FormData, FormSettings, EmailCollectionType, ThemeColor, ThemeStyle } from '../types/form';
 import { Settings as SettingsIcon, Mail, Edit3, UserCheck, Layout, CheckSquare, Lock, Sliders, Palette } from 'lucide-react';
 import { LogoUpload } from './LogoUpload';
-import EmailSettings from './EmailSettings'; // Added import for EmailSettings component
 
 interface SettingsProps {
   form: FormData;
   onUpdate: (updatedForm: FormData) => void;
-  emailConfig: {
-    serviceId: string;
-    templateId: string;
-    userId: string;
-  };
-  updateEmailConfig: (config: { serviceId: string; templateId: string; userId: string }) => void;
 }
 
 // Default theme settings for safety
@@ -24,7 +17,7 @@ const defaultTheme = {
   customFooter: ''
 };
 
-export function Settings({ form, onUpdate, emailConfig, updateEmailConfig }: SettingsProps) {
+export function Settings({ form, onUpdate }: SettingsProps) {
   // Ensure theme exists by merging with defaults
   const theme = {
     ...defaultTheme,
@@ -74,7 +67,7 @@ export function Settings({ form, onUpdate, emailConfig, updateEmailConfig }: Set
               <Palette className="w-5 h-5 text-blue-500" />
               Theme Customization
             </h3>
-
+            
             <div className="space-y-6">
               <div>
                 <label className="block font-medium mb-2">Primary Color</label>
@@ -196,7 +189,7 @@ export function Settings({ form, onUpdate, emailConfig, updateEmailConfig }: Set
               <Mail className="w-5 h-5 text-blue-500" />
               Response Collection
             </h3>
-
+            
             <div className="space-y-6">
               <div>
                 <label className="block font-medium mb-2">Collect email addresses</label>
@@ -211,37 +204,21 @@ export function Settings({ form, onUpdate, emailConfig, updateEmailConfig }: Set
                 </select>
               </div>
 
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <label className="font-medium">Send responders a copy of their response</label>
-                    <p className="text-sm text-gray-500">Requires email collection</p>
-                  </div>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={form.settings.sendResponseCopy}
-                      onChange={(e) => updateSettings({ sendResponseCopy: e.target.checked })}
-                      disabled={form.settings.emailCollection === 'do_not_collect'}
-                      className="sr-only peer"
-                    />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500"></div>
-                  </label>
+              <div className="flex items-center justify-between">
+                <div>
+                  <label className="font-medium">Send responders a copy of their response</label>
+                  <p className="text-sm text-gray-500">Requires email collection</p>
                 </div>
-
-                {form.settings.sendResponseCopy && (
-                  <div className="ml-6 mt-2">
-                    <EmailSettings
-                      serviceId={emailConfig.serviceId}
-                      templateId={emailConfig.templateId}
-                      userId={emailConfig.userId}
-                      onSave={updateEmailConfig}
-                    />
-                    <p className="text-xs text-gray-500 mt-2">
-                      To send emails, you'll need to set up an EmailJS account at emailjs.com and configure a service and template.
-                    </p>
-                  </div>
-                )}
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={form.settings.sendResponseCopy}
+                    onChange={(e) => updateSettings({ sendResponseCopy: e.target.checked })}
+                    disabled={form.settings.emailCollection === 'do_not_collect'}
+                    className="sr-only peer"
+                  />
+                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500"></div>
+                </label>
               </div>
 
               <div className="flex items-center justify-between">
@@ -284,7 +261,7 @@ export function Settings({ form, onUpdate, emailConfig, updateEmailConfig }: Set
               <Layout className="w-5 h-5 text-blue-500" />
               Form Presentation
             </h3>
-
+            
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -369,7 +346,7 @@ export function Settings({ form, onUpdate, emailConfig, updateEmailConfig }: Set
               <Lock className="w-5 h-5 text-blue-500" />
               Restrictions
             </h3>
-
+            
             <div className="flex items-center justify-between">
               <div>
                 <label className="font-medium">Disable auto-save</label>
@@ -393,7 +370,7 @@ export function Settings({ form, onUpdate, emailConfig, updateEmailConfig }: Set
               <Sliders className="w-5 h-5 text-blue-500" />
               Form Defaults
             </h3>
-
+            
             <div className="space-y-6">
               <div>
                 <label className="block font-medium mb-2">Default email collection</label>
