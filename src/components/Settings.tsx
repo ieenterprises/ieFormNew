@@ -357,18 +357,7 @@ export function Settings({ form, onUpdate }: SettingsProps) {
             </h3>
             
             <div className="space-y-6">
-              <div>
-                <label className="block font-medium mb-2">Default email collection</label>
-                <select
-                  value={form.settings.defaultEmailCollection}
-                  onChange={(e) => updateSettings({ defaultEmailCollection: e.target.value as EmailCollectionType })}
-                  className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="do_not_collect">Do not collect</option>
-                  <option value="verified">Verified</option>
-                  <option value="responder_input">Responder input</option>
-                </select>
-              </div>
+              
 
               <div className="flex items-center justify-between">
                 <div>
