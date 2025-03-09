@@ -47,17 +47,10 @@ export function Analytics({ form }: AnalyticsProps) {
     
     // Create CSV rows
     const rows = form.responses.map(response => {
-      // Start with timestamp and email
       const row = [
         new Date(response.submittedAt).toLocaleString(),
-        response.email || 'N/A'
+        response.answers.email || 'N/A'
       ];
-      
-      // Add answers for each question in the correct order
-      form.questions.forEach(question => {
-        const answer = response.answers[question.id] || '';
-        row.push(answer);
-      });
       
       form.questions.forEach(question => {
         const answer = response.answers[question.id];
