@@ -130,8 +130,8 @@ export function Settings({ form, onUpdate }: SettingsProps) {
 
               <LogoUpload
                 theme={theme}
-                onUpdate={(logo) => updateSettings({
-                  theme: { ...theme, logo }
+                onUpdate={(themeUpdates) => updateSettings({
+                  theme: { ...theme, ...(themeUpdates.theme || {}) }
                 })}
               />
 

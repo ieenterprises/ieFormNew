@@ -32,12 +32,15 @@ export function LogoUpload({ theme, onUpdate }: LogoUploadProps) {
         // Ensure the base64 data is valid
         if (base64String && base64String.startsWith('data:image/')) {
           onUpdate({
-            logo: {
-              url: base64String,
-              alignment: theme.logo?.alignment || 'center'
+            theme: {
+              ...theme,
+              logo: {
+                url: base64String,
+                alignment: theme.logo?.alignment || 'center'
+              }
             }
           });
-          console.log('Logo updated:', base64String.substring(0, 50) + '...');
+          console.log('Logo updated successfully');
         } else {
           console.error('Invalid image data format');
           alert('Failed to process image. Please try another file.');
@@ -58,16 +61,24 @@ export function LogoUpload({ theme, onUpdate }: LogoUploadProps) {
   };
 
   const handleRemoveLogo = () => {
-    onUpdate({ logo: undefined });
+    onUpdate({
+      theme: {
+        ...theme,
+        logo: undefined
+      }
+    });
   };
 
   const handleAlignmentChange = (alignment: 'left' | 'center' | 'right') => {
     if (!theme.logo) return;
 
     onUpdate({
-      logo: {
-        ...theme.logo,
-        alignment
+      theme: {
+        ...theme,
+        logo: {
+          ...theme.logo,
+          alignment
+        }
       }
     });
   };

@@ -382,7 +382,7 @@ What is your Age Range? 15-19 years, 20-24 years, 25-29 years"
 
               {/* Display custom logo if present */}
               {currentForm.settings.theme.logo && (
-                <div className={`mb-6 text-${currentForm.settings.theme.logo.alignment || 'center'}`}>
+                <div className={`mb-6 text-${currentForm.settings.theme.logo.alignment}`}>
                   <img 
                     src={currentForm.settings.theme.logo.url} 
                     alt="Form logo" 
