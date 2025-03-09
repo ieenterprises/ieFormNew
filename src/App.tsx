@@ -359,6 +359,22 @@ What is your Age Range? 15-19 years, 20-24 years, 25-29 years"
             >
               <h1 className="text-2xl font-bold mb-6">{currentForm.title}</h1>
               
+              {/* Display custom logo if present */}
+              {currentForm.settings.theme.logo && (
+                <div className={`mb-6 text-${currentForm.settings.theme.logo.alignment}`}>
+                  <img 
+                    src={currentForm.settings.theme.logo.url} 
+                    alt="Form logo" 
+                    className="max-h-20 inline-block"
+                    style={{
+                      maxWidth: '100%',
+                      height: 'auto'
+                    }}
+                  />
+                </div>
+              )}
+              
+              {/* Display custom header if present */}
               {currentForm.settings.theme.customHeader && (
                 <div 
                   className="mb-6"
@@ -366,6 +382,7 @@ What is your Age Range? 15-19 years, 20-24 years, 25-29 years"
                 />
               )}
               
+              {/* Show progress bar if enabled */}
               {currentForm.settings.showProgressBar && (
                 <div className="mb-6">
                   <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
@@ -376,21 +393,33 @@ What is your Age Range? 15-19 years, 20-24 years, 25-29 years"
                       }}
                     />
                   </div>
-                  <div className="text-right text-sm mt-1 text-gray-600">
+                  <div className="text-right text-sm mt-1 text-gray-600 dark:text-gray-300">
                     Progress: {calculateProgress(responses, currentForm.questions)}%
                   </div>
                 </div>
               )}
 
-              <form onSubmit={handleSubmit} className="space-y-6">
+              <form 
+                onSubmit={handleSubmit} 
+                className="space-y-6"
+                autoSave={currentForm.settings.disableAutosave ? 'off' : 'on'}
+              >
+                {/* Shuffle questions if enabled */}
                 {(currentForm.settings.shuffleQuestions 
                   ? [...currentForm.questions].sort(() => Math.random() - 0.5) 
                   : currentForm.questions
                 ).map((question) => (
                   <div key={question.id} className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-700">
+                    <label className="block text-sm font-medium">
                       {question.question}
                       {question.required && <span className="text-red-500 ml-1">*</span>}
+                      
+                      {/* Show points if this is a quiz */}
+                      {currentForm.settings.isQuiz && question.points && (
+                        <span className="ml-2 text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full">
+                          {question.points} {question.points === 1 ? 'point' : 'points'}
+                        </span>
+                      )}
                     </label>
                     <FormField
                       question={question}
@@ -405,9 +434,10 @@ What is your Age Range? 15-19 years, 20-24 years, 25-29 years"
                   </div>
                 ))}
                 
+                {/* Add email collection if enabled */}
                 {currentForm.settings.emailCollection !== 'do_not_collect' && (
                   <div className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-700">
+                    <label className="block text-sm font-medium">
                       Email Address
                       <span className="text-red-500 ml-1">*</span>
                     </label>
@@ -422,19 +452,39 @@ What is your Age Range? 15-19 years, 20-24 years, 25-29 years"
                         email: e.target.value
                       }))}
                     />
+                    
+                    {/* Show copy of response option */}
+                    {currentForm.settings.sendResponseCopy && (
+                      <div className="flex items-center mt-2">
+                        <input
+                          type="checkbox"
+                          id="send-copy"
+                          checked={responses['send_copy'] as boolean || false}
+                          onChange={(e) => setResponses(prev => ({
+                            ...prev,
+                            send_copy: e.target.checked
+                          }))}
+                          className="mr-2"
+                        />
+                        <label htmlFor="send-copy" className="text-sm">
+                          Send me a copy of my responses
+                        </label>
+                      </div>
+                    )}
                   </div>
                 )}
                 
                 <div className="flex space-x-4">
                   <button
                     type="submit"
-                    className={`flex-1 text-white py-2 px-4 rounded-md hover:bg-${currentForm.settings.theme.primaryColor}-600 transition-colors bg-${currentForm.settings.theme.primaryColor}-500`}
+                    className="flex-1 text-white py-2 px-4 rounded-md transition-colors"
                   >
                     Submit Form
                   </button>
                 </div>
               </form>
 
+              {/* Show custom footer if present */}
               {currentForm.settings.theme.customFooter && (
                 <div 
                   className="mt-6"

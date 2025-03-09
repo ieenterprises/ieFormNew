@@ -1,57 +1,31 @@
 import { FormQuestion } from '../types/form';
 
 export function calculateProgress(
-  responses: Record<string, any>,
+  responses: Record<string, string | string[] | number | Date>,
   questions: FormQuestion[]
 ): number {
-  if (!questions.length) return 0;
+  // Only count required questions for progress calculation
+  const requiredQuestions = questions.filter(q => q.required);
 
-  let answeredCount = 0;
-  let totalRequired = 0;
+  if (requiredQuestions.length === 0) return 100;
 
-  questions.forEach(question => {
-    // Only count required questions for progress
-    if (question.required) {
-      totalRequired++;
-      const response = responses[question.id];
-      
-      // Check if the response exists and is valid based on the question type
-      let isAnswered = false;
-      
-      switch (question.type) {
-        case 'short_answer':
-        case 'paragraph':
-          isAnswered = typeof response === 'string' && response.trim() !== '';
-          break;
-          
-        case 'multiple_choice':
-        case 'dropdown':
-          isAnswered = typeof response === 'string' && response !== '';
-          break;
-          
-        case 'checkboxes':
-          isAnswered = Array.isArray(response) && response.length > 0;
-          break;
-          
-        case 'file_upload':
-          isAnswered = response instanceof File || (typeof response === 'object' && response !== null);
-          break;
-          
-        case 'date':
-          isAnswered = response && !isNaN(new Date(response).getTime());
-          break;
-          
-        case 'time':
-          isAnswered = typeof response === 'string' && /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/.test(response);
-          break;
-      }
-      
-      if (isAnswered) {
-        answeredCount++;
+  let answeredRequired = 0;
+
+  for (const question of requiredQuestions) {
+    const response = responses[question.id];
+
+    if (response !== undefined && response !== null) {
+      // Check if response is not empty
+      if (
+        (typeof response === 'string' && response.trim() !== '') ||
+        (Array.isArray(response) && response.length > 0) ||
+        (typeof response === 'number') ||
+        (response instanceof Date)
+      ) {
+        answeredRequired++;
       }
     }
-  });
+  }
 
-  // Calculate progress percentage
-  return totalRequired === 0 ? 100 : Math.round((answeredCount / totalRequired) * 100);
+  return Math.round((answeredRequired / requiredQuestions.length) * 100);
 }

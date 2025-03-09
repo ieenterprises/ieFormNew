@@ -1,3 +1,4 @@
+
 export type QuestionType = 
   | 'short_answer'
   | 'paragraph'
@@ -43,7 +44,7 @@ export interface FormQuestion {
 export interface FormResponse {
   id: string;
   formId: string;
-  answers: Record<string, string | string[] | number | Date>;
+  answers: Record<string, string | string[] | number | Date | boolean>;
   submittedAt: string;
   score?: number;
   maxScore?: number;
@@ -60,10 +61,10 @@ export interface FormSettings {
   confirmationMessage: string;
   showSubmitAnother: boolean;
   showResultsSummary: boolean;
-  theme: FormTheme;
   disableAutosave: boolean;
   defaultEmailCollection: EmailCollectionType;
   defaultRequiredQuestions: boolean;
+  theme: FormTheme;
 }
 
 export interface FormData {

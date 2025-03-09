@@ -1,154 +1,152 @@
-import React, { useRef } from 'react';
-import { Upload, X } from 'lucide-react';
+
+import React, { useState } from 'react';
 import { FormTheme } from '../types/form';
+import { Upload, Trash2 } from 'lucide-react';
 
 interface LogoUploadProps {
   theme: FormTheme;
-  onUpdate: (logo: FormTheme['logo']) => void;
+  onUpdate: (logoSettings: Partial<FormTheme>) => void;
 }
 
 export function LogoUpload({ theme, onUpdate }: LogoUploadProps) {
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
+  const [uploading, setUploading] = useState(false);
+  
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      // Check file type
-      if (!file.type.startsWith('image/')) {
-        alert('Please upload an image file');
-        return;
-      }
-
-      // Check file size (max 2MB)
-      if (file.size > 2 * 1024 * 1024) {
-        alert('File size should be less than 2MB');
-        return;
-      }
-
-      // Create object URL for preview
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        // Create an image element to get dimensions
-        const img = new Image();
-        img.onload = () => {
-          // Calculate dimensions while maintaining aspect ratio
-          let width = img.width;
-          let height = img.height;
-          const maxWidth = 200;
-          const maxHeight = 100;
-
-          if (width > maxWidth) {
-            height = (height * maxWidth) / width;
-            width = maxWidth;
+    if (!file) return;
+    
+    // Check file size (max 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      alert('File is too large. Please upload an image under 2MB.');
+      return;
+    }
+    
+    // Check file type
+    if (!['image/jpeg', 'image/png', 'image/gif'].includes(file.type)) {
+      alert('Unsupported file type. Please upload a PNG or JPG image.');
+      return;
+    }
+    
+    setUploading(true);
+    
+    // Convert file to base64 for storage
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const logoUrl = event.target?.result as string;
+      
+      // Create an image element to get dimensions
+      const img = new Image();
+      img.onload = () => {
+        onUpdate({
+          logo: {
+            url: logoUrl,
+            width: img.width,
+            height: img.height,
+            alignment: 'center'
           }
-
-          if (height > maxHeight) {
-            width = (width * maxHeight) / height;
-            height = maxHeight;
-          }
-
-          onUpdate({
-            url: event.target?.result as string,
-            width: Math.round(width),
-            height: Math.round(height),
-            alignment: theme.logo?.alignment || 'left'
-          });
-        };
-        img.src = event.target?.result as string;
+        });
+        setUploading(false);
       };
-      reader.readAsDataURL(file);
-    }
+      img.src = logoUrl;
+    };
+    
+    reader.readAsDataURL(file);
   };
-
+  
   const handleRemoveLogo = () => {
-    onUpdate(undefined);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
+    onUpdate({ logo: undefined });
   };
-
+  
   const handleAlignmentChange = (alignment: 'left' | 'center' | 'right') => {
-    if (theme.logo) {
-      onUpdate({
+    if (!theme.logo) return;
+    
+    onUpdate({
+      logo: {
         ...theme.logo,
         alignment
-      });
-    }
+      }
+    });
   };
-
+  
   return (
     <div className="space-y-4">
       <label className="block font-medium mb-2">Business Logo</label>
       
       {theme.logo ? (
         <div className="space-y-4">
-          <div className="relative inline-block">
-            <img
-              src={theme.logo.url}
-              alt="Business Logo"
-              style={{
-                width: theme.logo.width,
-                height: theme.logo.height,
-                objectFit: 'contain'
-              }}
-              className="rounded-md"
+          <div className="flex justify-center">
+            <img 
+              src={theme.logo.url} 
+              alt="Form logo" 
+              className="max-h-20 object-contain"
             />
-            <button
-              onClick={handleRemoveLogo}
-              className="absolute -top-2 -right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
-              title="Remove logo"
-            >
-              <X className="w-4 h-4" />
-            </button>
           </div>
-
-          <div className="flex gap-2">
+          
+          <div className="flex justify-center space-x-4">
             <button
+              type="button"
               onClick={() => handleAlignmentChange('left')}
-              className={`px-3 py-1 rounded ${
-                theme.logo.alignment === 'left'
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-gray-100 hover:bg-gray-200'
+              className={`px-3 py-1 border rounded-md ${
+                theme.logo.alignment === 'left' ? 'bg-blue-100 border-blue-500' : ''
               }`}
             >
               Left
             </button>
             <button
+              type="button"
               onClick={() => handleAlignmentChange('center')}
-              className={`px-3 py-1 rounded ${
-                theme.logo.alignment === 'center'
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-gray-100 hover:bg-gray-200'
+              className={`px-3 py-1 border rounded-md ${
+                theme.logo.alignment === 'center' ? 'bg-blue-100 border-blue-500' : ''
               }`}
             >
               Center
             </button>
             <button
+              type="button"
               onClick={() => handleAlignmentChange('right')}
-              className={`px-3 py-1 rounded ${
-                theme.logo.alignment === 'right'
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-gray-100 hover:bg-gray-200'
+              className={`px-3 py-1 border rounded-md ${
+                theme.logo.alignment === 'right' ? 'bg-blue-100 border-blue-500' : ''
               }`}
             >
               Right
             </button>
           </div>
+          
+          <button
+            type="button"
+            onClick={handleRemoveLogo}
+            className="px-3 py-1 text-red-500 border border-red-300 rounded-md flex items-center gap-2 hover:bg-red-50"
+          >
+            <Trash2 className="w-4 h-4" />
+            Remove Logo
+          </button>
         </div>
       ) : (
-        <div className="flex items-center justify-center w-full">
-          <label className="w-full flex flex-col items-center px-4 py-6 bg-white text-gray-500 rounded-lg border-2 border-dashed border-gray-300 cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-colors">
-            <Upload className="w-8 h-8 mb-2 text-gray-400" />
-            <span className="text-sm font-medium mb-1">Click to upload logo</span>
-            <span className="text-xs text-gray-500">PNG, JPG up to 2MB</span>
-            <input
-              ref={fileInputRef}
-              type="file"
-              className="hidden"
-              accept="image/*"
-              onChange={handleFileChange}
-            />
-          </label>
+        <div 
+          className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer hover:border-blue-500 transition-colors"
+          onClick={() => document.getElementById('logo-upload')?.click()}
+        >
+          <Upload className="w-8 h-8 mx-auto text-gray-400" />
+          <p className="mt-2 text-sm text-gray-500">Click to upload logo</p>
+          <p className="text-xs text-gray-400 mt-1">PNG, JPG up to 2MB</p>
+          
+          <input
+            id="logo-upload"
+            type="file"
+            accept="image/png, image/jpeg, image/gif"
+            onChange={handleFileChange}
+            className="hidden"
+            disabled={uploading}
+          />
+          
+          {uploading && (
+            <div className="mt-2">
+              <div className="w-full bg-gray-200 rounded-full h-2.5">
+                <div className="bg-blue-500 h-2.5 rounded-full animate-pulse" style={{ width: '100%' }}></div>
+              </div>
+              <p className="text-xs text-gray-500 mt-1">Uploading...</p>
+            </div>
+          )}
         </div>
       )}
     </div>

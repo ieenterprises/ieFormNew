@@ -3,84 +3,56 @@ import { FormQuestion } from '../types/form';
 export function parseQuestions(input: string): FormQuestion[] {
   if (!input.trim()) return [];
 
-  const lines = input.split('\n').filter(line => line.trim());
+  const lines = input.split('\n').filter(line => line.trim() !== '');
   const questions: FormQuestion[] = [];
 
   for (const line of lines) {
-    // Check if the line contains a question and options
-    const questionMatch = line.match(/(.*?)\s*\?\s*(.*)/);
+    // Skip empty lines
+    if (!line.trim()) continue;
+
+    // Try to extract a question and potential options
+    const questionMatch = line.match(/^(.*?)(\?)\s*(.*?)$/);
 
     if (questionMatch) {
-      const [, questionText, optionsText] = questionMatch;
+      const questionText = questionMatch[1].trim() + '?';
+      const optionsText = questionMatch[3].trim();
 
-      if (optionsText && optionsText.trim()) {
-        // This is likely a multiple choice question
-        // Parse options - they could be separated by commas or tabs
-        const options = optionsText.split(/[,\t]/)
-          .map(option => option.trim())
-          .filter(option => option.length > 0);
+      // Check if there are options (comma separated values)
+      if (optionsText && optionsText.includes(',')) {
+        // This is a multiple choice question
+        const options = optionsText.split(',').map(option => 
+          option.trim().replace(/\.$/, '') // Remove trailing periods
+        ).filter(option => option !== '');
 
-        if (options.length > 0) {
-          // Create a multiple choice question
-          questions.push({
-            id: Math.random().toString(36).substring(2),
-            type: 'multiple_choice',
-            question: `${questionText.trim()}?`,
-            options: options,
-            required: true
-          });
-          continue;
-        }
-      }
-
-      // Default to short answer if no options or couldn't parse options
-      questions.push({
-        id: Math.random().toString(36).substring(2),
-        type: 'short_answer',
-        question: `${questionText.trim()}?`,
-        required: true
-      });
-    } else {
-      // Check if there are options listed separately with tab or multiple spaces
-      const optionsMatch = line.match(/(.*?)(?:\t|\s{2,})(.*)/);
-
-      if (optionsMatch) {
-        const [, questionText, optionsText] = optionsMatch;
-
-        // Parse options - could be separated by tabs or multiple spaces
-        const options = optionsText.split(/[\t\s{2,}]/)
-          .map(option => option.trim())
-          .filter(option => option.length > 0);
-
-        if (options.length > 0) {
-          questions.push({
-            id: Math.random().toString(36).substring(2),
-            type: 'multiple_choice',
-            question: questionText.trim(),
-            options: options,
-            required: true
-          });
-        } else {
-          // Default to short answer
-          questions.push({
-            id: Math.random().toString(36).substring(2),
-            type: 'short_answer',
-            question: questionText.trim(),
-            required: true
-          });
-        }
+        questions.push({
+          id: Math.random().toString(36).substring(2),
+          type: 'multiple_choice',
+          question: questionText,
+          options: options,
+          required: true
+        });
       } else {
-        // Just a regular question without options
+        // This is a short answer question
         questions.push({
           id: Math.random().toString(36).substring(2),
           type: 'short_answer',
-          question: line.trim(),
+          question: questionText,
           required: true
         });
       }
+    } else {
+      // If no question mark, treat as a short answer question
+      questions.push({
+        id: Math.random().toString(36).substring(2),
+        type: 'short_answer',
+        question: line.trim(),
+        required: true
+      });
     }
   }
 
+  // Log the parsed questions for debugging
+  console.log('Parsed questions:', questions);
   return questions;
 }
 
